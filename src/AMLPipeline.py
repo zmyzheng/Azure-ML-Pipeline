@@ -33,10 +33,10 @@ class AMLPipeline(metaclass=abc.ABCMeta):
         root = logging.getLogger()
         root.setLevel(logging.DEBUG)
 
-        self.ws = self.__initWorkSpace(tenantId, subscriptionId, resourceGroup, amlWorkspaceName, workspaceRegion,
+        self.__initWorkSpace(tenantId, subscriptionId, resourceGroup, amlWorkspaceName, workspaceRegion,
                                        appId, appPassword)
 
-        self.computeTarget = self.__initComputeCluster(computeTargetClusterName, computeTargetVmSize,
+        self.__initComputeCluster(computeTargetClusterName, computeTargetVmSize,
                                                        computeTargetClusterMinNodes, computeTargetClusterMaxNodes)
         self.registryPassword = registryPassword
         self.storageAccountKey = storageAccountKey
@@ -49,32 +49,33 @@ class AMLPipeline(metaclass=abc.ABCMeta):
                 tenant_id=tenantId,
                 service_principal_id=appId,
                 service_principal_password=appPassword)
-
-            ws = Workspace(subscription_id=subscriptionId,
+        except ProjectSystemException as err:
+                    # Usually because authentication didn't work
+                    logging.error('Authentication did not work.')
+                    logging.error('ProjectSystemException')
+                    raise err
+        try:
+            self.ws = Workspace(subscription_id=subscriptionId,
                            resource_group=resourceGroup,
                            workspace_name=amlWorkspaceName,
                            auth=svc_pr)
             logging.info("Found workspace {} at location {} using Azure CLI \
-                    authentication".format(ws.name, ws.location))
-            # Usually because authentication didn't work
-        except ProjectSystemException as err:
-            logging.info('Authentication did not work.')
-            logging.info('ProjectSystemException')
+                    authentication".format(self.ws.name, self.ws.location))
             # Need to create the workspace
         except Exception as err:
-            ws = Workspace.create(name=amlWorkspaceName,
+            self.ws = Workspace.create(name=amlWorkspaceName,
                                   subscription_id=subscriptionId,
                                   resource_group=resourceGroup,
                                   create_resource_group=True,
                                   location=workspaceRegion,  # Or other supported Azure region
                                   auth=svc_pr)
-            logging.info("Created workspace {} at location {}".format(ws.name, ws.location))
-        return ws
+            logging.info("Created workspace {} at location {}".format(self.ws.name, self.ws.location))
+
 
     def __initComputeCluster(self, computeTargetClusterName, computeTargetVmSize, computeTargetClusterMinNodes,
                              computeTargetClusterMaxNodes):
         try:
-            computeTarget = ComputeTarget(workspace=self.ws, name=computeTargetClusterName)
+            self.computeTarget = ComputeTarget(workspace=self.ws, name=computeTargetClusterName)
             logging.info('Found existing compute target.')
         except ComputeTargetException:
             logging.info('Creating a new compute target...')
@@ -83,9 +84,9 @@ class AMLPipeline(metaclass=abc.ABCMeta):
                                                                    min_nodes=computeTargetClusterMinNodes,
                                                                    max_nodes=computeTargetClusterMaxNodes)
             # create the cluster
-            computeTarget = ComputeTarget.create(self.ws, computeTargetClusterName, compute_config)
-            computeTarget.wait_for_completion(show_output=True)
-        return computeTarget
+            self.computeTarget = ComputeTarget.create(self.ws, computeTargetClusterName, compute_config)
+            self.computeTarget.wait_for_completion(show_output=True)
+
 
     @abc.abstractmethod
     def registerDataStores(self):

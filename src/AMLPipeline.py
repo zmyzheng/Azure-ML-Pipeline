@@ -126,3 +126,4 @@ class AMLPipeline(metaclass=abc.ABCMeta):
                                                          description=endpointDescription)
             logging.info("PipelineEndpoint with name" + endpointName + " created for the newly published pipeline")
             logging.info("Pipeline Endpoint URL: {}".format(pipelineEndpoint.endpoint))
+        return pipelineEndpoint.endpoint

@@ -121,10 +121,10 @@ class AMLPipeline(metaclass=abc.ABCMeta):
             logging.info("Pipeline Endpoint URL: {}".format(pipelineEndpoint.endpoint))
         except Exception as err:
             logging.info(
-                "PipelineEndpoint with name FairSeqTestEndpoint does not exist, will create an PipelineEndpoint with name: FairSeqTestEndpoint for the newly published pipeline...")
+                "PipelineEndpoint with name FairSeqTestEndpoint does not exist, will create an PipelineEndpoint with name:  " + endpointName + "  for the newly published pipeline...")
             pipelineEndpoint = PipelineEndpoint.publish(workspace=self.ws, name=endpointName,
                                                          pipeline=pipelineEndpoint,
                                                          description=endpointDescription)
-            logging.info("PipelineEndpoint with name" + endpointName + " created for the newly published pipeline")
+            logging.info("PipelineEndpoint with name " + endpointName + " created for the newly published pipeline")
             logging.info("Pipeline Endpoint URL: {}".format(pipelineEndpoint.endpoint))
         return pipelineEndpoint.endpoint

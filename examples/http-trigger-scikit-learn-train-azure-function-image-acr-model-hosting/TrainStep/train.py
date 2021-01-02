@@ -28,6 +28,8 @@ def main():
 
 
     run.upload_folder(savePath, savePath)
+    run.register_model(model_name='SKLearnModel',model_path=modelFilePath)
+
 
 
 

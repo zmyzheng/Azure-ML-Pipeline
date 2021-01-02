@@ -1,0 +1,2 @@
+
+class HttpTriggeredPipeline(AMLPipeline):

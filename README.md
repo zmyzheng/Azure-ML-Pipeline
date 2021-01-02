@@ -1,5 +1,7 @@
 # Azure-ML-Pipeline
 
+Azure Machine Learning Pipeline high level API
+
 
 ## Build
 

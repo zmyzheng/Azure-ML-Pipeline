@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="io.zmyzheng.aml_pipeline", # Replace with your own username
+    name="io.zmyzheng.amlpipeline", # Replace with your own username
     version="0.0.1",
     author="Mingyang Zheng",
     author_email="zhengzmy@gmail.com",

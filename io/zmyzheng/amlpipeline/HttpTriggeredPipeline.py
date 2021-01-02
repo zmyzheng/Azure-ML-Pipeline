@@ -1,6 +1,6 @@
 
 import logging
-from io.zmyzheng.aml_pipeline.AMLPipeline import AMLPipeline
+from io.zmyzheng.amlpipeline.AMLPipeline import AMLPipeline
 from azureml.pipeline.core import PipelineEndpoint
 
 class HttpTriggeredPipeline(AMLPipeline):

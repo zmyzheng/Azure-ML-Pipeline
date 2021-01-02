@@ -6,6 +6,7 @@ from azureml.pipeline.core import PipelineData
 from azureml.core.conda_dependencies import CondaDependencies
 from azureml.core.runconfig import DEFAULT_CPU_IMAGE, RunConfiguration
 from azureml.pipeline.steps import EstimatorStep, PythonScriptStep
+from azureml.train.sklearn import SKLearn
 
 
 class HttpSklearnAzureFunctionPipeline(HttpTriggeredPipeline):
@@ -68,11 +69,15 @@ class HttpSklearnAzureFunctionPipeline(HttpTriggeredPipeline):
 
     def definePipelineSteps(self):
         logging.info("Define AML Pipeline Steps...")
+        preProcessStep = self.definePreProcessingStep()
+        self.steps.append(preProcessStep)
+        
+        trainStep = self.defineTrainStep()
+        trainStep.run_after(preProcessStep)
+        self.steps.append(trainStep)
 
-        self.steps.append(self.preProcessingStep())
 
-
-    def preProcessingStep(self):
+    def definePreProcessingStep(self):
         run_config = RunConfiguration()
         # enable Docker 
         run_config.environment.docker.enabled = True
@@ -83,9 +88,9 @@ class HttpSklearnAzureFunctionPipeline(HttpTriggeredPipeline):
         # specify CondaDependencies obj
         run_config.environment.python.conda_dependencies = CondaDependencies.create( conda_packages=['pandas, scikit-learn'], pip_packages=['azureml-defaults', 'azureml-contrib-functions', 'azureml-dataprep[pandas,fuse]'])
 
-        preProcessStep = PythonScriptStep( name = "PreProcessingStep",
+        preProcessStep = PythonScriptStep( name = "PreProcessing",
                                         script_name="preprocess.py",
-                                        arguments=["--input_dir", self.sourceDir, "--output_dir", "processedData"],
+                                        arguments=["--inputDir", self.sourceDir, "--outputDir", self.processedDir._output_path_on_compute],
                                         inputs=[self.sourceDir],
                                         outputs=[self.processedDir],
                                         compute_target=self.computeTarget, 
@@ -93,3 +98,20 @@ class HttpSklearnAzureFunctionPipeline(HttpTriggeredPipeline):
                                         allow_reuse=False,
                                         runconfig=run_config)
         return preProcessStep
+
+
+    def defineTrainStep(self):
+        skLearnEstimator = SKLearn(source_directory='TrainStep',
+                            compute_target=self.computeTarget,
+                            entry_script='train.py',
+                            pip_packages=['azureml-dataprep[pandas,fuse]'],
+                            conda_packages = ['pandas']
+                            )
+        trainStep = EstimatorStep(name="Train", 
+                                estimator=skLearnEstimator, 
+                                estimator_entry_script_arguments=[ "--inputDir", self.processedDir, "--outputDir", self.modelDir._output_path_on_compute],
+                                inputs=[self.processedDir], 
+                                outputs=[self.modelDir], 
+                                compute_target=self.computeTarget,
+                                allow_reuse=False)
+        return trainStep

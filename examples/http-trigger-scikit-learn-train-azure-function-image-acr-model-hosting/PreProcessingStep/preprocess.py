@@ -10,14 +10,14 @@ run = Run.get_context()
 def main():
     # get command-line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input_dir', type=str, help='input directory',
+    parser.add_argument('--inputDir', type=str, help='input directory',
                         default='sourceData')
-    parser.add_argument('--output_dir', type=str, help='output directory',
+    parser.add_argument('--outputDir', type=str, help='output directory',
                         default='processedData')
     
     args = parser.parse_args()
 
-    savePath = args.output_dir
+    savePath = args.outputDir
     os.makedirs(savePath, exist_ok=True)
 
     preProcessor = PreProcessor(args.inputDir)

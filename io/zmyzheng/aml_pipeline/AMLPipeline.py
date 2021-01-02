@@ -41,6 +41,7 @@ class AMLPipeline(metaclass=abc.ABCMeta):
         
         self.storageAccountKey = storageAccountKey
         self.storageAccountName = storageAccountName
+        self.steps = []
 
     def __initWorkSpace(self, tenantId, subscriptionId, resourceGroup, amlWorkspaceName, workspaceRegion, appId,
                         appPassword):

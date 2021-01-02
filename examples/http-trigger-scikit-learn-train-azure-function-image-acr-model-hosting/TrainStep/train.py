@@ -28,7 +28,7 @@ def main():
 
 
     run.upload_folder(savePath, savePath)
-    run.register_model(model_name='SKLearnModel',model_path=modelFilePath)
+    run.register_model(model_name='ScikitLearnModel',model_path=modelFilePath)
 
 
 

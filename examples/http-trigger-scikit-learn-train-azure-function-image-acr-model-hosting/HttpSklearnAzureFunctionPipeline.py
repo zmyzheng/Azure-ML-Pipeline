@@ -76,6 +76,10 @@ class HttpSklearnAzureFunctionPipeline(HttpTriggeredPipeline):
         trainStep.run_after(preProcessStep)
         self.steps.append(trainStep)
 
+        validationStep = self.defineValidationStep()
+        validationStep.run_after(trainStep)
+        self.steps.append(validationStep)
+
 
     def definePreProcessingStep(self):
         run_config = RunConfiguration()
@@ -115,3 +119,25 @@ class HttpSklearnAzureFunctionPipeline(HttpTriggeredPipeline):
                                 compute_target=self.computeTarget,
                                 allow_reuse=False)
         return trainStep
+
+    
+    def defineValidationStep(self):
+        run_config = RunConfiguration()
+        # enable Docker 
+        run_config.environment.docker.enabled = True
+        # set Docker base image to the default CPU-based image
+        run_config.environment.docker.base_image = DEFAULT_CPU_IMAGE
+        # use conda_dependencies.yml to create a conda environment in the Docker image for execution
+        run_config.environment.python.user_managed_dependencies = False
+        # specify CondaDependencies obj
+        run_config.environment.python.conda_dependencies = CondaDependencies.create( conda_packages=['pandas, scikit-learn'], pip_packages=['azureml-defaults', 'azureml-contrib-functions', 'azureml-dataprep[pandas,fuse]'])
+
+        validationStep = PythonScriptStep( name = "Validation",
+                                        script_name="validate.py",
+                                        arguments=["--testDataDir", self.processedDir, "--modelDir", self.modelDir._output_path_on_compute],
+                                        inputs=[self.processedDir, self.modelDir],
+                                        compute_target=self.computeTarget, 
+                                        source_directory='ValidationStep',
+                                        allow_reuse=False,
+                                        runconfig=run_config)
+        return validationStep

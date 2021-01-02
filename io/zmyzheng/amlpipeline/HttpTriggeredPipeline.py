@@ -19,7 +19,7 @@ class HttpTriggeredPipeline(AMLPipeline):
             logging.info("Pipeline Endpoint URL: {}".format(pipelineEndpoint.endpoint))
         except Exception as err:
             logging.info(
-                "PipelineEndpoint with name FairSeqTestEndpoint does not exist, will create an PipelineEndpoint with name:  " + endpointName + "  for the newly published pipeline...")
+                "PipelineEndpoint with name " + endpointName + "  does not exist, will create an PipelineEndpoint with name:  " + endpointName + "  for the newly published pipeline...")
             pipelineEndpoint = PipelineEndpoint.publish(workspace=self.ws, name=endpointName,
                                                          pipeline=pipelineEndpoint,
                                                          description=endpointDescription)

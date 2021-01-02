@@ -1,2 +1,2 @@
 azure-mgmt-resource==10.2.0
-azureml-sdk
+azureml-sdk==1.12.0

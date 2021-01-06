@@ -1,2 +1,3 @@
 azure-mgmt-resource==10.2.0
 azureml-sdk==1.12.0
+pyjwt==1.7.1

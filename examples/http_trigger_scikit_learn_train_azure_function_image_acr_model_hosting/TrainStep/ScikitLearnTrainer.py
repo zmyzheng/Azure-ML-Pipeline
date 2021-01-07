@@ -13,8 +13,8 @@ class ScikitLearnTrainer:
         X_train_Path = os.path.join(self.inputDir, "X_train.csv")
         Y_train_Path = os.path.join(self.inputDir, "Y_train.csv")
 
-        X_train = pd.read_csv("X_train.csv", dtype=str)["text"]
-        Y_train = pd.read_csv("Y_train.csv")["label"]
+        X_train = pd.read_csv(X_train_Path, dtype=str)["text"]
+        Y_train = pd.read_csv(Y_train_Path)["label"]
 
         pipeline = make_pipeline(TfidfVectorizer(), LinearSVC())
 

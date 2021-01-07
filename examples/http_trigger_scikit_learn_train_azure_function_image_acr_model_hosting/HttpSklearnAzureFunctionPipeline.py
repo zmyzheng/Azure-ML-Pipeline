@@ -1,5 +1,5 @@
 import logging
-from io.zmyzheng.amlpipeline.HttpTriggeredPipeline import HttpTriggeredPipeline
+from zmyzheng.amlpipeline.HttpTriggeredPipeline import HttpTriggeredPipeline
 from azureml.core import Datastore
 from azureml.data.data_reference import DataReference
 from azureml.pipeline.core import PipelineData
@@ -29,7 +29,7 @@ class HttpSklearnAzureFunctionPipeline(HttpTriggeredPipeline):
     def registerDataStores(self):
         sourceDs = Datastore.register_azure_blob_container(workspace=self.ws, 
             datastore_name='SourceBlob', 
-            container_name="SourceBlob",
+            container_name="source-blob",
             account_name=self.storageAccountName, 
             account_key=self.storageAccountKey,
             create_if_not_exists=True)
@@ -43,7 +43,7 @@ class HttpSklearnAzureFunctionPipeline(HttpTriggeredPipeline):
 
         processedDs = Datastore.register_azure_blob_container(workspace=self.ws, 
             datastore_name='ProcessedBlob', 
-            container_name="ProcessedBlob",
+            container_name="processed-blob",
             account_name=self.storageAccountName, 
             account_key=self.storageAccountKey,
             create_if_not_exists=True)
@@ -56,8 +56,8 @@ class HttpSklearnAzureFunctionPipeline(HttpTriggeredPipeline):
                                 output_path_on_compute='processedData')
         
         modelDs = Datastore.register_azure_blob_container(workspace=self.ws, 
-            datastore_name='ModelBlob', 
-            container_name="ModelBlob",
+            datastore_name='ModelsBlob', 
+            container_name="models-blob",
             account_name=self.storageAccountName, 
             account_key=self.storageAccountKey,
             create_if_not_exists=True)
@@ -98,7 +98,7 @@ class HttpSklearnAzureFunctionPipeline(HttpTriggeredPipeline):
         # use conda_dependencies.yml to create a conda environment in the Docker image for execution
         run_config.environment.python.user_managed_dependencies = False
         # specify CondaDependencies obj
-        run_config.environment.python.conda_dependencies = CondaDependencies.create( conda_packages=['pandas, scikit-learn'], pip_packages=['azureml-defaults', 'azureml-contrib-functions', 'azureml-dataprep[pandas,fuse]'])
+        run_config.environment.python.conda_dependencies = CondaDependencies.create( conda_packages=['scikit-learn'], pip_packages=['azureml-defaults', 'azureml-contrib-functions', 'azureml-dataprep[pandas,fuse]'])
 
         preProcessStep = PythonScriptStep( name = "PreProcessing",
                                         script_name="preprocess.py",
@@ -138,11 +138,11 @@ class HttpSklearnAzureFunctionPipeline(HttpTriggeredPipeline):
         # use conda_dependencies.yml to create a conda environment in the Docker image for execution
         run_config.environment.python.user_managed_dependencies = False
         # specify CondaDependencies obj
-        run_config.environment.python.conda_dependencies = CondaDependencies.create( conda_packages=['pandas, scikit-learn'], pip_packages=['azureml-defaults', 'azureml-contrib-functions', 'azureml-dataprep[pandas,fuse]'])
+        run_config.environment.python.conda_dependencies = CondaDependencies.create( conda_packages=['scikit-learn'], pip_packages=['azureml-defaults', 'azureml-contrib-functions', 'azureml-dataprep[pandas,fuse]'])
 
         validationStep = PythonScriptStep( name = "Validation",
                                         script_name="validate.py",
-                                        arguments=["--testDataDir", self.processedDir, "--modelDir", self.modelDir._output_path_on_compute],
+                                        arguments=["--testDataDir", self.processedDir, "--modelDir", self.modelDir],
                                         inputs=[self.processedDir, self.modelDir],
                                         compute_target=self.computeTarget, 
                                         source_directory='ValidationStep',

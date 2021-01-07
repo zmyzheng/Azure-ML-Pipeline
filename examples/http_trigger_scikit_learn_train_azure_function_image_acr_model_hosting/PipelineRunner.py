@@ -1,5 +1,9 @@
 
 import argparse
+
+import sys
+sys.path.insert(0,'../..')
+
 from HttpSklearnAzureFunctionPipeline import HttpSklearnAzureFunctionPipeline
 
 

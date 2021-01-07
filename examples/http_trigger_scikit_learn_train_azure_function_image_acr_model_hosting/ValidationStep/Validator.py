@@ -25,4 +25,4 @@ class Validator:
         diff = Y_test - Y_predict
 
         errorRate = np.sum(np.abs(diff)) / 1.0 / diff.size
-        print("error rate: " + errorRate)
+        print("error rate: " + str(errorRate))

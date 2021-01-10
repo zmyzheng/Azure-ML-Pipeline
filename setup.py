@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="zmyzheng.amlpipeline", # Replace with your own username
+    name="aml-pipeline", 
     version="0.0.1",
     author="Mingyang Zheng",
     author_email="zhengzmy@gmail.com",
@@ -19,4 +19,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
+    install_requires=["azure-mgmt-resource==10.2.0", "pyjwt==1.7.1", "azureml-sdk==1.12.0"],
 )
